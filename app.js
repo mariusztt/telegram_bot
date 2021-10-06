@@ -1,7 +1,5 @@
 const { Telegraf } = require('telegraf');
 
-//require('base')
-
 const bot = new Telegraf('2003983199:AAEIp-7t3TnVHXXKZp3Jl-4CBbTaRTVbdCg');
 
 bot.command('start', ctx => {
@@ -9,7 +7,8 @@ bot.command('start', ctx => {
     bot.telegram.sendMessage(ctx.chat.id, `Cześć ${ctx.from.first_name}!  Witaj w mojej grze matematycznej. Aby rozpocząć, wpisz /play`, {
     })
 })
-//bot.command('play',ctx => {
+    
+
     bot.hears('/play', ctx => {
         console.log(ctx.from)
         let beforeGameMsg = `teraz zapoznaj się z instrukcją lub zacznij grę`;
@@ -31,181 +30,117 @@ bot.command('start', ctx => {
             }
         })
     })
-//})
 
 bot.action('instrukcja', ctx => {
     bot.telegram.sendMessage(ctx.chat.id, `Tu bedzie instrukcja kiedyś`, {
     })
 
 })
-var t1 = "+";
-var a = Math.round(Math.random()*10);
-var b = Math.round(Math.random()*10);
-var resultInt = a+b;
-var resultStr = `${a}+${b}`
+let counter = 0;
 bot.action('graj', ctx => {
-    bot.telegram.sendMessage(ctx.chat.id, `A Tu bedzie gierka kiedyś`, {
-    })
-    const requestanswerKeyboard = {
-        "reply_markup": {
-            "one_time_keyboard": true,
-            "keyboard": [
-                [
-                    "randomInt/resultInt","randomInt/resultInt",
-                    
-                ],
-                [
-                    "randomInt/resultInt","randomInt/resultInt"
-                ]
-                
+    ctx.deleteMessage()
 
-        ]
+    counter = 0;
+
+    randomQuestionGenerator()
+    
+
+    bot.action('dOdp',ctx => {
+        console.log('dobra')
+        counter = counter+1;
+        ctx.deleteMessage();
+        randomQuestionGenerator()
+        
+    }) 
+    bot.action('zOdp',ctx => {
+        console.log(counter)
+        ctx.deleteMessage();
+        bot.telegram.sendMessage(ctx.chat.id, `zła odpowiedź, twój wynik to: ${counter}, jeśli chcesz zagrać jeszcze raz, wpisz /play`, {
+        })
+    }) 
+
+    function randomQuestionGenerator() {
+        const pVar =  {
+            pv10 : {
+                a:Math.round(Math.random()*10),
+                b: Math.round(Math.random()*10),
+            },
+            pv20 : {
+                a: Math.round(Math.random()*20),
+                b: Math.round(Math.random()*20),
+            },
+            pv100 : {
+                a: Math.round(Math.random()*100),
+                b: Math.round(Math.random()*100),
+            },
+            
         }
-    };
-    bot.telegram.sendMessage(ctx.chat.id, 'tutaj bedzie resultStr', requestanswerKeyboard);
+        const pObj = {
+            p1 : {
+                resultStr: `${pVar.pv10.a}+${pVar.pv10.b}`,
+                resultInt: pVar.pv10.a+pVar.pv10.b
+            },
+            p2 : {
+                resultStr: `${pVar.pv100.a}+${pVar.pv100.b}`,
+                resultInt: pVar.pv100.a+pVar.pv100.b
+            },
+            p3 : {
+                resultStr: `${pVar.pv10.a}-${pVar.pv10.b}`,
+                resultInt: pVar.pv10.a-pVar.pv10.b
+            },
+            p4 : {
+                resultStr: `${pVar.pv100.a}-${pVar.pv100.b}`,
+                resultInt: pVar.pv100.a-pVar.pv100.b
+            },
+            p5 : {
+                resultStr: `${pVar.pv10.a}*${pVar.pv10.b}`,
+                resultInt: pVar.pv10.a*pVar.pv10.b
+            },
+            p6 : {
+                resultStr: `${pVar.pv20.a}*${pVar.pv20.b}`,
+                resultInt: pVar.pv20.a*pVar.pv20.b
+           },
+        }
+        
+        function getRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)]
+          }
+          
+          let randomQuestion = getRandom(Object.values(pObj));
+          
+          console.log(`Random question: ${randomQuestion.resultStr}`);
+          console.log('Random question info', randomQuestion);
+        
+        
+        
+        
+        bot.telegram.sendMessage(ctx.chat.id, randomQuestion.resultStr, {
+            reply_markup: {
+                one_time_keyboard : true,
+                inline_keyboard: [
+                    [{
+                        text: randomQuestion.resultInt,
+                        callback_data: 'dOdp'
+                    },{
+                        text: Math.round(Math.random()*200-100),
+                        callback_data: 'zOdp',
 
+                    }],
+                    [{
+                        text: Math.round(Math.random()*200-100),
+                        callback_data: 'zOdp'
+                    },{
+                        text: Math.round(Math.random()*200-100),
+                        callback_data: 'zOdp'
+                    }],
+
+            ]
+            }
+            
+        });
+    }
+
+   
+   
 })
-// bot.hears('phone', (ctx, next) => {
-//     console.log(ctx.from)
-//     bot.telegram.sendMessage(ctx.chat.id, 'Can we get access to your phone number?', requestPhoneKeyboard);
-
-// })
-
-// //method for requesting user's location
-
-// bot.hears("location", (ctx) => {
-//     console.log(ctx.from)
-//     bot.telegram.sendMessage(ctx.chat.id, 'Can we access your location?', requestLocationKeyboard);
-// })
-
-// //constructor for providing phone number to the bot
-
-// const requestPhoneKeyboard = {
-//     "reply_markup": {
-//         "one_time_keyboard": true,
-//         "keyboard": [
-            // [{
-            //     text: "My phone number",
-            //     request_contact: true,
-            //     one_time_keyboard: true
-            // }],
-//             ["Cancel"]
-//         ]
-//     }
-// };
-// //constructor for proving location to the bot
-
-// const requestLocationKeyboard = {
-//     "reply_markup": {
-//         "one_time_keyboard": true,
-//         "keyboard": [
-//             [{
-//                 text: "My location",
-//                 request_location: true,
-//                 one_time_keyboard: true
-//             }],
-//             ["Cancel"]
-//         ]
-//     }
-
-// }
-
-// bot.hears('animals', ctx => {
-//     console.log(ctx.from)
-//     let animalMessage = `great, here are pictures of animals you would love`;
-//     ctx.deleteMessage();
-//     bot.telegram.sendMessage(ctx.chat.id, animalMessage, {
-//         reply_markup: {
-            // inline_keyboard: [
-            //     [{
-            //             text: "dog",
-            //             callback_data: 'dog'
-            //         },
-            //         {
-            //             text: "cat",
-            //             callback_data: 'cat'
-            //         }
-            //     ],
-
-//             ]
-//         }
-//     })
-// })
-
-// //method that returns image of a dog
-
-// bot.action('dog', ctx => {
-//     bot.telegram.sendPhoto(ctx.chat.id, {
-//         source: "res/dog.jpeg"
-//     })
-
-// })
-
-// //method that returns image of a cat 
-
-// bot.action('cat', ctx => {
-//     bot.telegram.sendPhoto(ctx.chat.id, {
-//         source: "res/cat.jpeg"
-//     })
-
-// })
-
-
-//link do tego jak wywołać to z objektu: https://stackoverflow.com/questions/49709371/get-random-variable-with-javascript
-//skrypt do drugiego pliku base.js
-
-
-// const pObj = {
-//     p1 : {
-//         a: Math.round(Math.random()*10),
-//         b: Math.round(Math.random()*10),
-//         resultStr: `${a}+${b}`,
-//         resultInt: a+b
-//     },
-//     p2 : {
-//         a: Math.round(Math.random()*100),
-//         b: Math.round(Math.random()*100),
-//         resultStr: `${a}+${b}`,
-//         resultInt: a+b
-//     },
-//     p3 : {
-//         a: Math.round(Math.random()*10),
-//         b: Math.round(Math.random()*10),
-//         resultStr: `${a}-${b}`,
-//         resultInt: a-b
-//     },
-//     p4 : {
-//         a: Math.round(Math.random()*100),
-//         b: Math.round(Math.random()*100),
-//         resultStr: `${a}-${b}`,
-//         resultInt: a-b
-//     },
-//     p5 : {
-//         a: Math.round(Math.random()*10),
-//         b: Math.round(Math.random()*10),
-//         resultStr: `${a}*${b}`,
-//         resultInt: a*b
-//     },
-//     p6 : {
-//         a: Math.round(Math.random()*20),
-//         b: Math.round(Math.random()*20),
-//         resultStr: `${a}*${b}`,
-//         resultInt: a*b
- //   },
-    // p7 : {
-    //     a: Math.round(Math.random()*100),
-    //     b: Math.round(Math.random()*100),
-    //     resultStr: `${a}-${b}`,
-    //     resultInt: a+b
-    // },
-    // p8 : {
-    //     a: Math.round(Math.random()*100),
-    //     b: Math.round(Math.random()*100),
-    //     resultStr: `${a}-${b}`,
-    //     resultInt: a+b
-    // },
-
-}
-
-
 bot.launch();
